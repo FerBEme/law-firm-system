@@ -1,44 +1,22 @@
 <?php
-
 namespace Database\Factories;
-
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
- */
-class UserFactory extends Factory
-{
-    /**
-     * The current password being used by the factory.
-     */
-    protected static ?string $password;
-
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition(): array
-    {
+class UserFactory extends Factory {
+    public function definition(): array { // Define los valores por defecto de un usuario falso
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
-            'remember_token' => Str::random(10),
+            'dni' => $this->faker->numerify('########'), // DNI simulado de 8 dígitos
+            'first_name' => $this->faker->name(), // Nombre falso
+            'paternal_surname' => $this->faker->lastName(), // Apellido paterno falso
+            'maternal_surname' => $this->faker->lastName(), // Apellido materno falso
+            'phone' => $this->faker->numerify('9########'), // Celular simulado comenzando con 9
+            'email' => $this->faker->safeEmail(), // Email seguro generado automáticamente
+            'password' => Hash::make('password'), // Constraseña fija para todos lo usuarios (encriptada)
+            'role' => $this->faker->randomElement(['lawyer', 'secretary']), // Rol del usuario: puede ser 'lawyer' o 'secretary'
+            'status' => $this->faker->randomElement(['active', 'inactive']), // Estado del usuario: activo o inactivo
+            'profile_photo' => null, // Foto de perfil (aquí null, puede añadirse luego)
+            'cal_number' => $this->faker->numerify('#####'), // Número de colegiado simulado
+            'lawyer_id' => null, // Relación con abogado (solo aplicable si es secretaria)
         ];
-    }
-
-    /**
-     * Indicate that the model's email address should be unverified.
-     */
-    public function unverified(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-        ]);
     }
 }

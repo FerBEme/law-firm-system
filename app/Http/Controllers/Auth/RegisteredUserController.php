@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Controllers\Auth;
-
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
@@ -10,42 +8,39 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
-use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
-
-class RegisteredUserController extends Controller
-{
-    /**
-     * Display the registration view.
-     */
-    public function create(): View
-    {
-        return view('auth.register');
+class RegisteredUserController extends Controller {
+    public function create(): View {
+        $lawyers = User::where('role', 'lawyer')->where('status', 'active')->get();
+        return view('auth.register', compact('lawyers'));
     }
-
-    /**
-     * Handle an incoming registration request.
-     *
-     * @throws ValidationException
-     */
-    public function store(Request $request): RedirectResponse
-    {
+    public function store(Request $request): RedirectResponse {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'dni' => ['required', 'string', 'size:8', 'unique:users,dni'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'paternal_surname' => ['required', 'string', 'max:255'],
+            'maternal_surname' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'size:9'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'role' => ['required', 'in:admin,lawyer,secretary'],
+            'cal_number' => ['nullable', 'string', 'max:10'],
+            'lawyer_id' => ['nullable', 'exists:users,id'],
         ]);
-
         $user = User::create([
-            'name' => $request->name,
+            'dni' => $request->dni,
+            'first_name' => $request->first_name,
+            'paternal_surname' => $request->paternal_surname,
+            'maternal_surname' => $request->maternal_surname,
+            'phone' => $request->phone,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => $request->role,
+            'cal_number' => $request->cal_number,
+            'lawyer_id' => $request->lawyer_id,
         ]);
-
         event(new Registered($user));
-
         Auth::login($user);
-
         return redirect(route('dashboard', absolute: false));
     }
 }

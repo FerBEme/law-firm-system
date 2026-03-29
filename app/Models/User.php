@@ -3,11 +3,13 @@ namespace App\Models;
 use App\Traits\BelongsToLawyer;
 use App\Traits\HasPermissions;
 use App\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 // Modelo User que representa a todos los usuarios del sistema
 // Puede ser abogado, secretaria o admin, según su rol
 class User extends Authenticatable {
+    use HasFactory; // Para datos de prueba
     // Incluimos Traits que agregan funcionalidades extras:
     // - Notificable: permite enviar notificaciones
     // - BelongsToLawyer: filtra registros según el abogado asignado
@@ -63,5 +65,15 @@ class User extends Authenticatable {
     }
     public function scopeSecretaries($query) {
         return $query->where('role', 'secretary');
+    }
+    // ------------------------------- Métodos Fijos -------------------------------
+    public function isAdmin(){ // Método cuando es Admin, devuelve true si es asi
+        return $this->role === 'admin';
+    }
+    public function isLawyer(){ // Método cuando es Lawyer, devuelve true si es asi
+        return $this->role === 'lawyer';
+    }
+    public function isSecretary(){ // Método cuando es Secretary, devuelve true si es asi
+        return $this->role === 'secretary';
     }
 }
